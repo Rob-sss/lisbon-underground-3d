@@ -26,6 +26,7 @@
   .row input[type=range]{flex:1;min-width:110px}
   button.b{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
   #note{font-size:11px;color:var(--mut);margin-top:6px;line-height:1.35}
+  #note a{color:var(--mut)}
 </style>
 </head>
 <body>
@@ -46,7 +47,7 @@
     <button class="b" id="bSide" data-i18n="side"></button>
     <button class="b" id="bReset" data-i18n="reset"></button>
   </div>
-  <div id="note"><span data-i18n="note"></span><br>Contains Copernicus data: EU-DEM v1.1, Copernicus Land Monitoring Service, European Environment Agency / European Commission.<br>Contém dados Copernicus: EU-DEM v1.1, Copernicus Land Monitoring Service, Agência Europeia do Ambiente / Comissão Europeia.</div>
+  <div id="note"><span data-i18n="note"></span><br>Contains Copernicus data: EU-DEM v1.1, Copernicus Land Monitoring Service, European Environment Agency / European Commission.<br>Contém dados Copernicus: EU-DEM v1.1, Copernicus Land Monitoring Service, Agência Europeia do Ambiente / Comissão Europeia.<br>Buildings / Edifícios: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL).</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -66,12 +67,16 @@ var I18N = {
     ground: "Surface", real: "True scale", yes: "on", no: "off", yes11: "on (1:1)",
     top: "Top view", side: "Section", reset: "Reset",
     note: "At true scale (1:1) heights and tunnel widths are real, but the terrain is barely visible. Metro: 50 stations (Câmara Municipal de Lisboa) and line routes (Metropolitano de Lisboa GTFS). Terrain: interpolated EU-DEM elevations (samples ~1.4 km apart, so approximate). Depths below the surface are rough estimates, not measurements; railway, aqueduct, Roman galleries and drainage tunnels are schematic.",
-    layers: {azul:"Blue Line", amarela:"Yellow Line", verde:"Green Line", vermelha:"Red Line", rail:"Railway", water:"Aqueduct", roman:"Roman galleries", drainage:"Drainage"},
+    layers: {azul:"Blue Line", amarela:"Yellow Line", verde:"Green Line", vermelha:"Red Line", rail:"Railway", water:"Aqueduct", roman:"Roman galleries", drainage:"Drainage", buildings:"Buildings (OSM)"},
     lineDesc: "Metropolitano de Lisboa. Route from official data; depth estimated, not measured.",
     station: "Station ",
     stationDesc: function(line, d){ return line + " · official position · estimated depth ~" + d + " m (not measured)"; },
     surfT: "Surface",
-    surfD: function(h){ return "Elevation ~" + h + " m above sea level (interpolated terrain, indicative)"; }
+    surfD: function(h){ return "Elevation ~" + h + " m above sea level (interpolated terrain, indicative)"; },
+    bldT: "Building",
+    bldD: function(h, src){ return "Height ~" + h + " m (" + ["from OpenStreetMap", "estimated from the number of floors in OpenStreetMap", "estimate: no height in OpenStreetMap"][src] + ") · © OpenStreetMap contributors"; },
+    bldLoading: "Loading the buildings…",
+    bldError: "The buildings could not be loaded here. Open lisbon-underground-3d.html, or the online page."
   },
   pt: {
     title: "Lisboa Subterrânea 3D",
@@ -84,12 +89,16 @@ var I18N = {
     ground: "Superfície", real: "Escala real", yes: "sim", no: "não", yes11: "sim (1:1)",
     top: "Vista de cima", side: "Corte", reset: "Repor",
     note: "Em escala real (1:1), as alturas e a largura dos túneis são reais, mas o relevo quase não se vê. Metro: 50 estações (Câmara Municipal de Lisboa) e traçado das linhas (GTFS do Metropolitano de Lisboa). Relevo: cotas EU-DEM interpoladas (amostras a cerca de 1,4 km, por isso aproximado). As profundidades abaixo da superfície são estimativas, não medições; ferrovia, aqueduto, galerias romanas e túneis de drenagem esquemáticos.",
-    layers: {azul:"Linha Azul", amarela:"Linha Amarela", verde:"Linha Verde", vermelha:"Linha Vermelha", rail:"Ferrovia", water:"Aqueduto", roman:"Galerias romanas", drainage:"Drenagem"},
+    layers: {azul:"Linha Azul", amarela:"Linha Amarela", verde:"Linha Verde", vermelha:"Linha Vermelha", rail:"Ferrovia", water:"Aqueduto", roman:"Galerias romanas", drainage:"Drenagem", buildings:"Edifícios (OSM)"},
     lineDesc: "Metropolitano de Lisboa. Traçado a partir de dados oficiais; profundidade estimada, não medida.",
     station: "Estação ",
     stationDesc: function(line, d){ return line + " · posição oficial · profundidade estimada ~" + d + " m (não medida)"; },
     surfT: "Superfície",
-    surfD: function(h){ return "Cota ~" + h + " m acima do nível do mar (relevo interpolado, indicativo)"; }
+    surfD: function(h){ return "Cota ~" + h + " m acima do nível do mar (relevo interpolado, indicativo)"; },
+    bldT: "Edifício",
+    bldD: function(h, src){ return "Altura ~" + h + " m (" + ["do OpenStreetMap", "estimada a partir do número de pisos no OpenStreetMap", "estimativa: sem altura no OpenStreetMap"][src] + ") · © contribuidores do OpenStreetMap"; },
+    bldLoading: "A carregar os edifícios…",
+    bldError: "Não foi possível carregar os edifícios aqui. Abra lisbon-underground-3d.html ou a página online."
   }
 };
 // Language: ?lang=en|pt, then the last choice, then the browser language (Portuguese -> pt, anything else -> en)
@@ -124,8 +133,10 @@ var OTHER = {
 // [layer key, colour]; names are in I18N[lang].layers
 var LAYERS = [
   ["azul","#2f8cff"],["amarela","#f5c400"],["verde","#2bb04a"],["vermelha","#ea4040"],
-  ["rail","#ff8a3d"],["water","#1fd1d6"],["roman","#e0b84a"],["drainage","#a27bff"]
+  ["rail","#ff8a3d"],["water","#1fd1d6"],["roman","#e0b84a"],["drainage","#a27bff"],["buildings","#b8c2cc"]
 ];
+// Buildings (OpenStreetMap, ODbL): embedded in the offline page; null in index.html, which loads data/buildings.json
+var BUILDINGS = /*__BUILDINGS__*/null;
 var SHORE = [[38.7018, -9.229], [38.6975, -9.206], [38.704, -9.178], [38.7065, -9.1545], [38.7055, -9.145], [38.703, -9.1365], [38.712, -9.1222], [38.733, -9.105], [38.765, -9.0925], [38.79, -9.09], [38.79, -9.07], [38.67, -9.07], [38.67, -9.23]];
 
 // ---------- SCENE ----------
@@ -204,10 +215,74 @@ function build(){
     var r=(o.layer==='drainage')?0.55:(o.layer==='rail'?0.3:0.22);
     tube(pts,o.color,r,{name:o.name,desc:o.desc},o.layer);
   });
+  if(bldMesh) bldMesh.scale.y=vx/100;
   applyVis();
 }
-var vis={}; LAYERS.forEach(function(l){vis[l[0]]=true;});
-function applyVis(){Object.keys(groups).forEach(function(k){groups[k].visible=vis[k];});}
+// buildings start off (heavy); ?buildings=1 in the address turns them on
+var vis={}; LAYERS.forEach(function(l){vis[l[0]]=(l[0]!=='buildings')||/[?&]buildings=1\b/.test(location.search);});
+function applyVis(){
+  Object.keys(groups).forEach(function(k){groups[k].visible=vis[k];});
+  if(vis.buildings) ensureBuildings();
+  if(bldMesh) bldMesh.visible=vis.buildings;
+}
+
+// ---------- BUILDINGS ----------
+// One merged mesh for all buildings (fast to draw). x/z in scene units, y in metres, so the
+// vertical exaggeration is just mesh.scale.y and the mesh is never rebuilt.
+var bldMesh=null, bldInfo=null, bldTri=null, bldState='none';
+function ensureBuildings(){
+  if(bldState!=='none') return;
+  bldState='loading'; selected={bld:'loading'}; showInfo();
+  var done=function(data){setTimeout(function(){ // let the "loading" text appear first
+      try{ makeBuildings(data); bldState='ready'; selected=null; }
+      catch(e){ bldState='error'; selected={bld:'error'}; }
+      applyVis(); showInfo(); },30);};
+  if(BUILDINGS){ done(BUILDINGS); return; }
+  fetch('data/buildings.json').then(function(r){if(!r.ok)throw r.status;return r.json();}).then(done)
+    .catch(function(){bldState='error';selected={bld:'error'};showInfo();});
+}
+function makeBuildings(D){
+  var B=D.b, u=D.unit_m, mLat=D.m_per_deg[0], mLon=D.m_per_deg[1], o=D.origin;
+  var nv=0, ni=0;
+  B.forEach(function(b){var n=b[0].length/2; nv+=5*n; ni+=6*n+3*(n-2);});
+  var pos=new Float32Array(nv*3), col=new Uint8Array(nv*3), idx=new Uint32Array(ni);
+  bldInfo=[]; bldTri=new Uint32Array(B.length);
+  var v=0, k=0, L=[0.45,0.8,0.6]; // light direction (x east, y up, z north), normalised below
+  var ll=Math.hypot(L[0],L[1],L[2]); L=[L[0]/ll,L[1]/ll,L[2]/ll];
+  function vert(x,y,z,c){pos[v*3]=x;pos[v*3+1]=y;pos[v*3+2]=z;col[v*3]=c;col[v*3+1]=Math.min(255,c+6);col[v*3+2]=Math.min(255,c+14);return v++;}
+  B.forEach(function(b,bi){
+    var r=b[0], n=r.length/2, xs=new Array(n), ys=new Array(n), x=0, y=0, cx=0, cy=0;
+    for(var i=0;i<n;i++){x+=r[2*i];y+=r[2*i+1];xs[i]=x*u;ys[i]=y*u;cx+=xs[i];cy+=ys[i];}
+    cx/=n; cy/=n;
+    var base=surf(o[0]+cy/mLat,o[1]+cx/mLon), top=base+b[1], bot=base-2;
+    bldTri[bi]=k/3; bldInfo.push([b[1],b[2],b[3]||null]);
+    // walls (ring is counter-clockwise, so the outward normal of edge (dx,dy) is (dy,-dx))
+    for(var i=0;i<n;i++){
+      var j=(i+1)%n, ex=xs[j]-xs[i], ey=ys[j]-ys[i], el=Math.hypot(ex,ey)||1;
+      var nx=ey/el, nz=-(-ex/el); // scene z points south: north component flips sign
+      var lit=Math.max(0,nx*L[0]+nz*L[2]); var c=Math.round(95+110*lit);
+      var a0=vert(xs[i]/100,bot,-ys[i]/100,c), a1=vert(xs[j]/100,bot,-ys[j]/100,c),
+          a2=vert(xs[j]/100,top,-ys[j]/100,c), a3=vert(xs[i]/100,top,-ys[i]/100,c);
+      idx[k++]=a0;idx[k++]=a1;idx[k++]=a2;idx[k++]=a0;idx[k++]=a2;idx[k++]=a3;
+    }
+    // roof
+    var contour=[], r0=v;
+    for(var i=0;i<n;i++){contour.push(new THREE.Vector2(xs[i],ys[i])); vert(xs[i]/100,top,-ys[i]/100,215);}
+    THREE.ShapeUtils.triangulateShape(contour,[]).forEach(function(t){idx[k++]=r0+t[0];idx[k++]=r0+t[2];idx[k++]=r0+t[1];});
+  });
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.BufferAttribute(col,3,true));
+  g.setIndex(new THREE.BufferAttribute(idx.subarray(0,k),1));
+  g.computeBoundingSphere();
+  bldMesh=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide}));
+  bldMesh.scale.y=vx/100; scene.add(bldMesh);
+}
+function buildingAt(face){ // index of the building that owns triangle number `face`
+  var lo=0, hi=bldTri.length-1;
+  while(lo<hi){var mid=(lo+hi+1)>>1; if(bldTri[mid]<=face) lo=mid; else hi=mid-1;}
+  return lo;
+}
 
 // ---------- UI ----------
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
@@ -215,6 +290,8 @@ var info=document.getElementById('info'),selected=null; // selected: userData of
 function showInfo(){
   var T=tr(),d=selected,title,desc;
   if(!d){title=T.hintT;desc=T.hintD;}
+  else if(d.bld){title=T.layers.buildings;desc=(d.bld==='loading'?T.bldLoading:T.bldError);}
+  else if(d.building!==undefined){var bi=bldInfo[d.building];title=bi[2]||T.bldT;desc=T.bldD(bi[0],bi[1]);}
   else if(d.surface!==undefined){title=T.surfT;desc=T.surfD(d.surface);}
   else if(d.station){title=T.station+d.station;desc=T.stationDesc(T.layers[d.line],d.depth);}
   else if(d.line){title=T.layers[d.line];desc=T.lineDesc;}
@@ -225,7 +302,7 @@ var chips=document.getElementById('chips'),chipLabels={};
 LAYERS.forEach(function(l){
   var b=document.createElement('button');b.className='chip';
   var dot=document.createElement('i');dot.style.background=l[1];var txt=document.createElement('span');
-  b.appendChild(dot);b.appendChild(txt);chipLabels[l[0]]=txt;
+  b.appendChild(dot);b.appendChild(txt);chipLabels[l[0]]=txt;b.classList.toggle('off',!vis[l[0]]);
   b.onclick=function(){vis[l[0]]=!vis[l[0]];b.classList.toggle('off',!vis[l[0]]);applyVis();};
   chips.appendChild(b);
 });
@@ -258,8 +335,10 @@ canvas.addEventListener('pointerup',function(e){
   if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;
   ptr.x=(e.clientX/innerWidth)*2-1;ptr.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(ptr,camera);
   var vp=pickables.filter(function(m){return m.parent&&m.parent.visible;});
+  if(bldMesh&&bldMesh.visible) vp.push(bldMesh);
   var h=ray.intersectObjects(vp,false)[0];
-  if(h){selected=h.object.userData;showInfo();}
+  if(h&&h.object===bldMesh){selected={building:buildingAt(h.faceIndex)};showInfo();}
+  else if(h){selected=h.object.userData;showInfo();}
   else if(groundOn&&terrainMesh){var th=ray.intersectObject(terrainMesh,false)[0];
     if(th){var lat=LAT0-th.point.z/KZ,lon=LON0+th.point.x/KX;selected={surface:Math.round(surf(lat,lon))};showInfo();}}
 });

@@ -10,3 +10,6 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# OpenStreetMap download cache of tools/build_buildings.py --fetch (large; rebuild with --fetch)
+data/raw/osm-buildings.json
