@@ -1,0 +1,37 @@
+name: "Data correction / Correção de dados"
+description: "A station, route, depth or building is wrong or missing, or you know a better source. / Uma estação, traçado, profundidade ou edifício está errado ou em falta, ou conhece uma fonte melhor."
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Building heights** come from OpenStreetMap: the best fix is to edit them there (see CONTRIBUTING.md). You can still report them here.
+        **A altura dos edifícios** vem do OpenStreetMap: a melhor correção é editá-la lá (ver CONTRIBUTING.pt.md). Também pode assinalá-la aqui.
+
+        Please don't send data copied from Google Maps or other copyrighted maps.
+        Por favor, não envie dados copiados do Google Maps nem de outros mapas protegidos por direitos de autor.
+  - type: dropdown
+    id: what
+    attributes:
+      label: "What is it about? / De que se trata?"
+      options:
+        - "Metro station or line / Estação ou linha do metro"
+        - "Tunnel depth / Profundidade de túnel"
+        - "Railway, aqueduct, galleries or drainage / Ferrovia, aqueduto, galerias ou drenagem"
+        - "Building / Edifício"
+        - "Terrain or river / Relevo ou rio"
+        - "A new data source / Uma nova fonte de dados"
+        - "Other / Outro"
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: "Where, and what is wrong? / Onde, e o que está errado?"
+      description: "Name of the place or element, and what the correct information is. / Nome do local ou elemento, e qual é a informação correta."
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: "How do you know? / Como sabe?"
+      description: "A link, document, photo or personal knowledge. If it's a dataset, its licence if you know it. / Uma ligação, documento, fotografia ou conhecimento próprio. Se for um conjunto de dados, a licença, se souber."

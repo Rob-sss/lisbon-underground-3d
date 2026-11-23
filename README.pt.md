@@ -105,7 +105,9 @@ Os passos 2 (sem Internet) e 4 reproduzem exatamente os ficheiros do repositóri
 - Acrescentar a Linha Circular e as estações mais recentes
 - Melhorar a altura dos edifícios acrescentando `height` ou `building:levels` aos edifícios de Lisboa no OpenStreetMap, o que também ajuda todos os outros que usam o mapa
 
-As contribuições são bem-vindas, em português ou em inglês. Se alterar algum texto, atualize os dois idiomas (a página, `data/hand_drawn_layers.json` e os dois README).
+## Como contribuir
+
+As contribuições são bem-vindas, em português ou em inglês, e não é preciso programar: assinalar um erro, indicar dados abertos (sobretudo profundidades reais dos túneis) ou acrescentar a altura de edifícios no OpenStreetMap, tudo ajuda. Consulte o **[CONTRIBUTING.pt.md](CONTRIBUTING.pt.md)** para saber como ajudar, as regras para os dados e como testar uma alteração, ou [abra uma issue](https://github.com/Rob-sss/lisbon-underground-3d/issues/new/choose).
 
 ## Licença
 

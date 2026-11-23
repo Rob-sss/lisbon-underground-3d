@@ -1,0 +1,36 @@
+name: "Something doesn't work / Algo não funciona"
+description: "The page doesn't load, a button does nothing, it's very slow... / A página não abre, um botão não faz nada, fica muito lenta..."
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! You can write in English or Portuguese.
+        Obrigado por assinalar! Pode escrever em português ou em inglês.
+  - type: textarea
+    id: what
+    attributes:
+      label: "What happened? / O que aconteceu?"
+      description: "What did you do, what did you expect, and what happened instead? / O que fez, o que esperava e o que aconteceu?"
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: "Which version? / Que versão?"
+      options:
+        - "Online page (github.io) / Página online (github.io)"
+        - "Downloaded file lisbon-underground-3d.html / Ficheiro descarregado lisbon-underground-3d.html"
+        - "Both / Ambas"
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: "Device and browser / Dispositivo e navegador"
+      placeholder: "e.g. / ex.: Android phone, Chrome · Windows laptop, Firefox"
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: "Screenshot (optional) / Captura de ecrã (opcional)"
+      description: "Drag an image here. / Arraste uma imagem para aqui."

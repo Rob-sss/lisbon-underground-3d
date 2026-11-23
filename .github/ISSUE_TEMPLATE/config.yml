@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "How to contribute / Como contribuir"
+    url: https://github.com/Rob-sss/lisbon-underground-3d/blob/main/CONTRIBUTING.md
+    about: "Read this first: data rules, how to edit, how to test. / Leia primeiro: regras para os dados, como editar, como testar."
+  - name: "Fix building heights in OpenStreetMap / Corrigir alturas de edifícios no OpenStreetMap"
+    url: https://www.openstreetmap.org/#map=14/38.7223/-9.1393
+    about: "The best way to improve buildings: edit height or building:levels there. / A melhor forma de melhorar os edifícios: editar height ou building:levels lá."

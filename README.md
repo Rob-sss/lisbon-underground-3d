@@ -105,7 +105,9 @@ Steps 2 (offline) and 4 reproduce the committed files exactly. Step 3 with `--fe
 - Add the Circular line and the newer stations
 - Improve building heights by adding `height` or `building:levels` to Lisbon buildings in OpenStreetMap, which also helps everyone else who uses the map
 
-Contributions are welcome, in English or Portuguese. If you change any text, please update both languages (the page, `data/hand_drawn_layers.json`, and both READMEs).
+## Contributing
+
+Contributions are welcome, in English or Portuguese, and you don't need to code: reporting a mistake, pointing to open data (especially real tunnel depths) or adding building heights in OpenStreetMap all help. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for how to help, the data rules and how to test a change, or [open an issue](https://github.com/Rob-sss/lisbon-underground-3d/issues/new/choose).
 
 ## Licence
 

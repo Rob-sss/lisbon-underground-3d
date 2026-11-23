@@ -1,0 +1,24 @@
+name: "Idea / Ideia"
+description: "A new layer, a feature, an improvement. / Uma nova camada, uma funcionalidade, uma melhoria."
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: "Your idea / A sua ideia"
+      description: "What would you like to see, and why would it be useful? / O que gostaria de ver, e porque seria útil?"
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: "Data needed (optional) / Dados necessários (opcional)"
+      description: "If it needs data, do you know an open source for it? / Se precisar de dados, conhece uma fonte aberta?"
+  - type: dropdown
+    id: help
+    attributes:
+      label: "Would you like to work on it? / Gostaria de trabalhar nisto?"
+      options:
+        - "No, just suggesting / Não, é só uma sugestão"
+        - "Yes, with some help / Sim, com alguma ajuda"
+        - "Yes / Sim"
