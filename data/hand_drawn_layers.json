@@ -1,0 +1,255 @@
+{
+ "rail1": {
+  "name": {
+   "en": "Cais do Sodré – Belém railway (surface)",
+   "pt": "Linha férrea Cais do Sodré – Belém (à superfície)"
+  },
+  "color": "#ff8a3d",
+  "layer": "rail",
+  "desc": {
+   "en": "Surface railway section along the Tagus. Schematic route.",
+   "pt": "Troço ferroviário à superfície ao longo do Tejo. Traçado esquemático."
+  },
+  "pts": [
+   [
+    38.70612,
+    -9.14621,
+    0
+   ],
+   [
+    38.703,
+    -9.156,
+    0
+   ],
+   [
+    38.701,
+    -9.17,
+    0
+   ],
+   [
+    38.7,
+    -9.185,
+    0
+   ],
+   [
+    38.6975,
+    -9.206,
+    0
+   ]
+  ]
+ },
+ "rail2": {
+  "name": {
+   "en": "Santa Apolónia – Oriente railway (surface)",
+   "pt": "Linha férrea Santa Apolónia – Oriente (à superfície)"
+  },
+  "color": "#ff8a3d",
+  "layer": "rail",
+  "desc": {
+   "en": "Railway section along the Tagus waterfront. Schematic route.",
+   "pt": "Troço ferroviário ao longo da frente ribeirinha do Tejo. Traçado esquemático."
+  },
+  "pts": [
+   [
+    38.71392,
+    -9.12233,
+    0
+   ],
+   [
+    38.725,
+    -9.113,
+    0
+   ],
+   [
+    38.74,
+    -9.104,
+    0
+   ],
+   [
+    38.756,
+    -9.099,
+    0
+   ],
+   [
+    38.76796,
+    -9.09981,
+    0
+   ]
+  ]
+ },
+ "rossio": {
+  "name": {
+   "en": "Rossio railway tunnel",
+   "pt": "Túnel ferroviário do Rossio"
+  },
+  "color": "#ff8a3d",
+  "layer": "rail",
+  "desc": {
+   "en": "Historic railway tunnel between Rossio station and Campolide, under the city centre. Route and depth are indicative.",
+   "pt": "Túnel ferroviário histórico entre a estação do Rossio e Campolide, sob o centro da cidade. Traçado e profundidade indicativos."
+  },
+  "pts": [
+   [
+    38.71404,
+    -9.13789,
+    8
+   ],
+   [
+    38.72,
+    -9.15,
+    24
+   ],
+   [
+    38.726,
+    -9.158,
+    28
+   ],
+   [
+    38.7324,
+    -9.164,
+    10
+   ]
+  ]
+ },
+ "loreto": {
+  "name": {
+   "en": "Galeria do Loreto (Águas Livres)",
+   "pt": "Galeria do Loreto (Águas Livres)"
+  },
+  "color": "#1fd1d6",
+  "layer": "water",
+  "desc": {
+   "en": "Aqueduct gallery, open for guided tours from the Reservatório da Mãe d'Água to the Reservatório da Patriarcal. Approximate route.",
+   "pt": "Galeria do aqueduto, visitável em visita guiada desde o Reservatório da Mãe d'Água até ao Reservatório da Patriarcal. Traçado aproximado."
+  },
+  "pts": [
+   [
+    38.7226,
+    -9.1546,
+    8
+   ],
+   [
+    38.7205,
+    -9.152,
+    9
+   ],
+   [
+    38.718,
+    -9.1497,
+    9
+   ],
+   [
+    38.7167,
+    -9.1485,
+    10
+   ],
+   [
+    38.7152,
+    -9.1441,
+    9
+   ]
+  ]
+ },
+ "roman": {
+  "name": {
+   "en": "Roman galleries (Baixa)",
+   "pt": "Galerias Romanas (Baixa)"
+  },
+  "color": "#e0b84a",
+  "layer": "roman",
+  "desc": {
+   "en": "Roman galleries discovered in 1771, open to the public only on special dates. Approximate position.",
+   "pt": "Galerias romanas descobertas em 1771, abertas ao público apenas em datas especiais. Posição aproximada."
+  },
+  "pts": [
+   [
+    38.7094,
+    -9.1372,
+    7
+   ],
+   [
+    38.7104,
+    -9.1385,
+    7
+   ],
+   [
+    38.7112,
+    -9.1395,
+    7
+   ]
+  ]
+ },
+ "tmsa": {
+  "name": {
+   "en": "TMSA drainage tunnel (under construction)",
+   "pt": "Túnel de drenagem TMSA (em construção)"
+  },
+  "color": "#a27bff",
+  "layer": "drainage",
+  "desc": {
+   "en": "Large flood-relief tunnel of the Lisbon Drainage Plan, up to ~70 m deep in places. Very schematic route.",
+   "pt": "Grande túnel contra cheias do Plano Geral de Drenagem de Lisboa, com até ~70 m de profundidade em alguns pontos. Traçado muito esquemático."
+  },
+  "pts": [
+   [
+    38.733,
+    -9.164,
+    45
+   ],
+   [
+    38.724,
+    -9.158,
+    60
+   ],
+   [
+    38.719,
+    -9.148,
+    55
+   ],
+   [
+    38.714,
+    -9.138,
+    45
+   ],
+   [
+    38.709,
+    -9.13,
+    40
+   ],
+   [
+    38.7035,
+    -9.1265,
+    35
+   ]
+  ]
+ },
+ "tcb": {
+  "name": {
+   "en": "TCB Chelas–Beato drainage tunnel",
+   "pt": "Túnel de drenagem TCB Chelas–Beato"
+  },
+  "color": "#a27bff",
+  "layer": "drainage",
+  "desc": {
+   "en": "Shorter drainage tunnel (~1.1 km). Very schematic route.",
+   "pt": "Túnel de drenagem mais curto (~1,1 km). Traçado muito esquemático."
+  },
+  "pts": [
+   [
+    38.74,
+    -9.115,
+    35
+   ],
+   [
+    38.733,
+    -9.113,
+    35
+   ],
+   [
+    38.726,
+    -9.111,
+    32
+   ]
+  ]
+ }
+}

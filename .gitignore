@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# GTFS downloads used by tools/build_data.py (not redistributed here)
+*.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

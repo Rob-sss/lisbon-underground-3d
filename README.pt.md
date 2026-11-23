@@ -1,0 +1,99 @@
+# Lisboa Subterrânea 3D
+
+[English](README.md) · **Português**
+
+Uma vista 3D interativa do que existe debaixo de Lisboa: o metro, a ferrovia e galerias históricas, desenhados sobre o relevo da cidade. Feito por curiosidade pelo desenho urbano, para partilhar com quem se interessa por perceber como a cidade funciona abaixo do nível da rua.
+
+**Abra `lisbon-underground-3d.html` em qualquer navegador.** Funciona sem ligação à Internet: sem servidor, sem instalação, sem conta.
+
+A página está disponível em português europeu e em inglês. Segue o idioma do navegador; use o botão **PT / EN** (canto superior direito) para mudar, ou acrescente `?lang=pt` ou `?lang=en` ao endereço.
+
+## O que contém
+
+- As 4 linhas do Metropolitano de Lisboa e as suas 50 estações, construídas a partir de dados abertos oficiais
+- Relevo interpolado a partir de amostras de cota do EU-DEM
+- Camadas que se podem ligar e desligar: metro, ferrovia, aqueduto (Galeria do Loreto), Galerias Romanas, túneis de drenagem
+- Um controlo de exagero vertical e um modo de **escala real (1:1)**
+- Toque ou clique em qualquer elemento para ver os detalhes
+
+## Leia isto antes de usar
+
+Isto é um **esquema didático, não um levantamento topográfico**.
+
+- **Profundidades ilustrativas.** Nenhum dos conjuntos de dados usados contém a profundidade dos túneis. As profundidades abaixo da superfície são valores indicativos (`data/depths.json`).
+- **Relevo aproximado.** A cota é amostrada a cada cerca de 1,4 km, mais a altitude de cada uma das 50 estações, e depois interpolada. Os pormenores pequenos (por exemplo, o vale da Baixa) ficam suavizados. O EU-DEM é um modelo de *superfície*, por isso inclui edifícios e vegetação.
+- **Camadas desenhadas à mão.** A ferrovia, o aqueduto, as Galerias Romanas e os túneis de drenagem (TMSA, TCB) são traçados aproximados, desenhados à mão (`data/hand_drawn_layers.json`).
+
+Não o use para decisões de projeto, escavação ou segurança.
+
+## Fontes dos dados e licenças
+
+Verificadas a 22 de novembro de 2026. Volte a confirmar antes de reutilizar os dados.
+
+| Dados | Fonte | Licença |
+|---|---|---|
+| Posição das 50 estações | Câmara Municipal de Lisboa, Lisboa Aberta, conjunto de dados "Estações de Metro" (recurso GeoJSON `POITransportes`): <https://dadosabertos.cm-lisboa.pt/dataset/estacoes-de-metro> | Creative Commons CC0 (indicada na página do recurso) |
+| Ordem e traçado das linhas | GTFS do Metropolitano de Lisboa, cópia no Zenodo: <https://zenodo.org/records/18830433> | CC0 1.0 (autor: Metropolitano de Lisboa, E.P.E.). Nota: a cópia no Zenodo é de 2019 |
+| Cotas do terreno | EU-DEM v1.1, 25 m (Copernicus Land Monitoring Service, Comissão Europeia), consultado através da API pública Open Topo Data: <https://www.opentopodata.org> | Acesso livre e aberto, com obrigação de citar a fonte (ver abaixo) |
+| three.js r128 | <https://threejs.org> | MIT (`vendor/THREE-LICENSE.txt`) |
+
+**Atribuição obrigatória para o relevo:** *Contains Copernicus data: EU-DEM v1.1, Copernicus Land Monitoring Service, European Environment Agency / European Commission.* O EU-DEM já não é mantido pelo serviço Copernicus.
+
+As informações sobre as galerias e o aqueduto (Museu da Água / EPAL, Museu de Lisboa, Plano Geral de Drenagem de Lisboa) foram usadas apenas como factos descritivos para desenhar traçados esquemáticos. Não está incluída nenhuma geometria de terceiros.
+
+## Reconstruir tudo a partir dos dados
+
+Requisitos: Python 3.9 ou mais recente. Não é preciso instalar pacotes (apenas a biblioteca padrão).
+
+```bash
+# 1. Estações por linha: posições oficiais + ordem das estações a partir do zip do GTFS.
+#    Descarregue o zip do GTFS (ver a tabela acima) e depois:
+python3 tools/build_data.py --gtfs caminho/para/METRO.zip   # escreve data/lines.json
+
+# 2. Malha do terreno a partir das amostras de cota guardadas no repositório (sem Internet):
+python3 tools/build_terrain.py                              # escreve data/terrain.json
+#    ...ou descarregue amostras novas da API pública (cerca de 1 pedido por segundo):
+python3 tools/build_terrain.py --fetch                      # também reescreve data/elevation_samples.json
+
+# 3. Montar as páginas:
+python3 tools/build_page.py                                 # escreve index.html e lisbon-underground-3d.html
+```
+
+Os passos 2 (sem Internet) e 3 reproduzem exatamente os ficheiros do repositório. As amostras de cota guardadas estão arredondadas ao metro, por isso um novo `--fetch` pode dar resultados ligeiramente diferentes.
+
+### Estrutura do projeto
+
+| Caminho | O que é |
+|---|---|
+| `lisbon-underground-3d.html` | Página final com o three.js incluído (abre sem Internet) |
+| `index.html` | A mesma página, a carregar o three.js de uma CDN (mais leve) |
+| `src/template.html` | Modelo da página: interface (textos em português e inglês), código 3D, marcadores para os dados |
+| `data/raw/estacoes-de-metro.geojson` | Estações oficiais (CC0) |
+| `data/lines.json` | Estações por ordem em cada linha (gerado por `build_data.py`) |
+| `data/depths.json` | Profundidades ilustrativas abaixo da superfície, por estação |
+| `data/elevation_samples.json` | Amostras de cota usadas para o terreno |
+| `data/terrain.json` | Malha do terreno (gerada por `build_terrain.py`) |
+| `data/hand_drawn_layers.json` | Traçados aproximados: ferrovia, aqueduto, Galerias Romanas, drenagem (nomes e descrições em português e inglês) |
+| `data/shoreline.json` | Polígono aproximado do Tejo, usado para a água e para aplanar o terreno |
+| `tools/` | Os três scripts de construção |
+| `vendor/` | three.js r128 e OrbitControls (MIT) |
+
+### Alterações fáceis
+
+- **Profundidades reais:** substitua os valores em `data/depths.json` (as chaves são os nomes das estações sem acentos, em minúsculas) e depois execute os passos 1 e 3.
+- **Um traçado novo ou corrigido:** edite `data/hand_drawn_layers.json` (`[latitude, longitude, profundidade em metros abaixo da superfície]`; indique `name` e `desc` em `pt` e em `en`) e depois execute o passo 3.
+- **Textos da interface:** todos os textos estão no objeto `I18N`, no início do script em `src/template.html`, com um bloco por idioma. Depois execute o passo 3.
+- **Estações novas ou um GTFS mais recente:** execute o passo 1 com os ficheiros novos. Se um traçado do GTFS saltar uma estação, o script insere-a onde acrescenta menos comprimento e mostra uma mensagem.
+
+## Ideias para melhorar
+
+- Substituir as profundidades ilustrativas por dados reais (perfis longitudinais das linhas do metro)
+- Usar um modelo de elevação mais fino
+- Acrescentar a rede ferroviária real (conjunto de dados "Rede Ferroviária" no Lisboa Aberta)
+- Acrescentar a Linha Circular e as estações mais recentes
+
+As contribuições são bem-vindas, em português ou em inglês. Se alterar algum texto, atualize os dois idiomas (a página, `data/hand_drawn_layers.json` e os dois README).
+
+## Licença
+
+Código: MIT (ver `LICENSE`). Os dados continuam sujeitos às licenças das fontes indicadas acima.

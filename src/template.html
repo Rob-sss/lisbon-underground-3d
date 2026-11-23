@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lisbon Underground 3D</title>
+<style>
+  :root{--bg:#0d1117;--fg:#e6edf3;--mut:#8b949e;--card:#161b22;--line:#30363d}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  header{position:fixed;top:0;left:0;right:0;padding:10px 12px 6px;background:linear-gradient(var(--bg),rgba(13,17,23,0));pointer-events:none}
+  h1{font-size:16px;margin:0 0 2px;font-weight:600}
+  header p{margin:0;font-size:12px;color:var(--mut)}
+  #bLang{position:absolute;top:10px;right:12px;pointer-events:auto}
+  #chips{position:fixed;top:54px;left:0;right:0;display:flex;gap:6px;padding:0 10px;overflow-x:auto;scrollbar-width:none}
+  #chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer}
+  .chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .chip.off{opacity:.38}
+  #ctl{position:fixed;left:0;right:0;bottom:0;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(rgba(13,17,23,0),var(--bg) 35%)}
+  #info{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:13px;margin-bottom:8px;min-height:44px}
+  #info b{display:block;margin-bottom:2px}
+  #info span{color:var(--mut);font-size:12px}
+  .row{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--mut);flex-wrap:wrap}
+  .row input[type=range]{flex:1;min-width:110px}
+  button.b{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+  #note{font-size:11px;color:var(--mut);margin-top:6px;line-height:1.35}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<header>
+  <h1 data-i18n="h1"></h1>
+  <p data-i18n="sub"></p>
+  <button class="b" id="bLang"></button>
+</header>
+<div id="chips"></div>
+<div id="ctl">
+  <div id="info"></div>
+  <div class="row">
+    <label><span data-i18n="vx"></span> <input id="vx" type="range" min="1" max="30" value="8"></label>
+    <button class="b" id="bGround"></button>
+    <button class="b" id="bReal"></button>
+    <button class="b" id="bTop" data-i18n="top"></button>
+    <button class="b" id="bSide" data-i18n="side"></button>
+    <button class="b" id="bReset" data-i18n="reset"></button>
+  </div>
+  <div id="note" data-i18n="note"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+// ---------- TEXT (English / European Portuguese) ----------
+var I18N = {
+  en: {
+    title: "Lisbon Underground 3D",
+    h1: "Lisbon Underground 3D",
+    sub: "Official metro · interpolated terrain",
+    lang: "PT", langTitle: "Ver em português",
+    hintT: "Tap an element",
+    hintD: "Drag to rotate, pinch to zoom. Turn off the surface to see the underground better.",
+    vx: "Vertical exaggeration",
+    ground: "Surface", real: "True scale", yes: "on", no: "off", yes11: "on (1:1)",
+    top: "Top view", side: "Section", reset: "Reset",
+    note: "At true scale (1:1) heights and tunnel widths are real, but the terrain is barely visible. Metro: 50 stations (Câmara Municipal de Lisboa) and line routes (Metropolitano de Lisboa GTFS). Terrain: interpolated EU-DEM elevations (samples ~1.4 km apart, so approximate). Depths below the surface are illustrative; railway, aqueduct, Roman galleries and drainage tunnels are schematic.",
+    layers: {azul:"Blue Line", amarela:"Yellow Line", verde:"Green Line", vermelha:"Red Line", rail:"Railway", water:"Aqueduct", roman:"Roman galleries", drainage:"Drainage"},
+    lineDesc: "Metropolitano de Lisboa. Route from official data, illustrative depth.",
+    station: "Station ",
+    stationDesc: function(line, d){ return line + " · official position · illustrative depth ~" + d + " m"; },
+    surfT: "Surface",
+    surfD: function(h){ return "Elevation ~" + h + " m above sea level (interpolated terrain, indicative)"; }
+  },
+  pt: {
+    title: "Lisboa Subterrânea 3D",
+    h1: "Lisboa Subterrânea 3D",
+    sub: "Metro oficial · relevo interpolado",
+    lang: "EN", langTitle: "View in English",
+    hintT: "Toque num elemento",
+    hintD: "Arraste para rodar, use dois dedos para fazer zoom. Desligue a superfície para ver melhor o subsolo.",
+    vx: "Exagero vertical",
+    ground: "Superfície", real: "Escala real", yes: "sim", no: "não", yes11: "sim (1:1)",
+    top: "Vista de cima", side: "Corte", reset: "Repor",
+    note: "Em escala real (1:1), as alturas e a largura dos túneis são reais, mas o relevo quase não se vê. Metro: 50 estações (Câmara Municipal de Lisboa) e traçado das linhas (GTFS do Metropolitano de Lisboa). Relevo: cotas EU-DEM interpoladas (amostras a cerca de 1,4 km, por isso aproximado). Profundidades abaixo da superfície ilustrativas; ferrovia, aqueduto, galerias romanas e túneis de drenagem esquemáticos.",
+    layers: {azul:"Linha Azul", amarela:"Linha Amarela", verde:"Linha Verde", vermelha:"Linha Vermelha", rail:"Ferrovia", water:"Aqueduto", roman:"Galerias romanas", drainage:"Drenagem"},
+    lineDesc: "Metropolitano de Lisboa. Traçado a partir de dados oficiais, profundidade ilustrativa.",
+    station: "Estação ",
+    stationDesc: function(line, d){ return line + " · posição oficial · profundidade ilustrativa ~" + d + " m"; },
+    surfT: "Superfície",
+    surfD: function(h){ return "Cota ~" + h + " m acima do nível do mar (relevo interpolado, indicativo)"; }
+  }
+};
+// Language: ?lang=en|pt, then the last choice, then the browser language (Portuguese -> pt, anything else -> en)
+var lang = (function(){
+  var q = (location.search.match(/[?&]lang=(en|pt)\b/) || [])[1];
+  if (q) return q;
+  try { var s = localStorage.getItem("lang"); if (s === "en" || s === "pt") return s; } catch (e) {}
+  return /^pt\b/i.test(navigator.language || "") ? "pt" : "en";
+})();
+function tr(){ return I18N[lang]; }
+function pick(v){ return (v && typeof v === "object") ? (v[lang] || v.en) : v; }
+
+// ---------- DATA (approximate) ----------
+// station: [name, lat, lon, illustrative depth in metres]
+var LINES = /*__LINES__*/;
+var MAJOR = ["Marquês de Pombal","Baixa Chiado","Rossio","Alameda","Saldanha","Oriente","Campo Grande","Cais do Sodré","Santa Apolónia","Reboleira","Odivelas","Aeroporto","Rato"];
+
+var OTHER = /*__OTHER__*/;
+// [layer key, colour]; names are in I18N[lang].layers
+var LAYERS = [
+  ["azul","#2f8cff"],["amarela","#f5c400"],["verde","#2bb04a"],["vermelha","#ea4040"],
+  ["rail","#ff8a3d"],["water","#1fd1d6"],["roman","#e0b84a"],["drainage","#a27bff"]
+];
+var SHORE = /*__SHORE__*/;
+
+// ---------- SCENE ----------
+var LAT0=38.725, LON0=-9.14, KX=869, KZ=1112; // 1 unit = 100 m
+// Terrain: EU-DEM 25 m elevations (samples ~1.4 km apart + the 50 stations), interpolated; indicative
+var TER=/*__TERRAIN__*/;
+function surf(lat,lon){var fx=(lon-TER.lon0)/(TER.lon1-TER.lon0)*(TER.nx-1),fy=(TER.lat1-lat)/(TER.lat1-TER.lat0)*(TER.ny-1);
+  if(fx<0||fy<0||fx>TER.nx-1||fy>TER.ny-1)return 0;var i=Math.min(TER.nx-2,Math.floor(fx)),j=Math.min(TER.ny-2,Math.floor(fy)),a=fx-i,b=fy-j,h=TER.h,n=TER.nx;
+  return h[j*n+i]*(1-a)*(1-b)+h[j*n+i+1]*a*(1-b)+h[(j+1)*n+i]*(1-a)*b+h[(j+1)*n+i+1]*a*b;}
+var canvas=document.getElementById('c');
+var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+var scene=new THREE.Scene(); scene.background=new THREE.Color(0x0d1117);
+var camera=new THREE.PerspectiveCamera(50,1,0.05,2000);
+var controls=new THREE.OrbitControls(camera,canvas);
+controls.enableDamping=true; controls.maxPolarAngle=Math.PI; controls.minDistance=1; controls.maxDistance=400;
+scene.add(new THREE.AmbientLight(0xffffff,0.8));
+var dl=new THREE.DirectionalLight(0xffffff,0.6); dl.position.set(50,100,40); scene.add(dl);
+
+var world=new THREE.Group(); scene.add(world);
+var groups={}; var pickables=[]; var vx=8; var groundOn=true; var groundMeshes=[]; var terrainMesh=null; var real=false;
+
+function P(lat,lon,depth){return new THREE.Vector3((lon-LON0)*KX,(surf(lat,lon)-depth)*vx/100,-(lat-LAT0)*KZ);}
+function label(text,pos){
+  var cv=document.createElement('canvas'),ctx=cv.getContext('2d');cv.width=256;cv.height=64;
+  ctx.font='600 26px system-ui,sans-serif';ctx.fillStyle='rgba(13,17,23,.75)';
+  var w=ctx.measureText(text).width+16;ctx.fillRect(0,12,w,40);ctx.fillStyle='#e6edf3';ctx.fillText(text,8,40);
+  var t=new THREE.CanvasTexture(cv);var s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthTest:false,transparent:true}));
+  s.scale.set(10,2.5,1);s.center.set(0,0.5);s.position.copy(pos);s.renderOrder=10;return s;
+}
+function tube(points,color,r,meta,layer){
+  var curve=new THREE.CatmullRomCurve3(points,false,'catmullrom',0.2);
+  var g=new THREE.TubeGeometry(curve,Math.max(24,points.length*14),r*(real?0.14:1),8,false);
+  var m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:color,roughness:.5,metalness:.1,emissive:color,emissiveIntensity:.25}));
+  m.userData=meta; groups[layer].add(m); pickables.push(m); return m;
+}
+function build(){
+  while(world.children.length) world.remove(world.children[0]);
+  pickables=[]; groundMeshes=[]; groups={};
+  LAYERS.forEach(function(l){groups[l[0]]=new THREE.Group();world.add(groups[l[0]]);});
+  // surface
+  var nx=TER.nx,ny=TER.ny,pos=new Float32Array(nx*ny*3),col=new Float32Array(nx*ny*3),idx=[];
+  for(var j=0;j<ny;j++)for(var i=0;i<nx;i++){
+    var lo=TER.lon0+(TER.lon1-TER.lon0)*i/(nx-1),la=TER.lat1-(TER.lat1-TER.lat0)*j/(ny-1),h=TER.h[j*nx+i],k=(j*nx+i)*3;
+    pos[k]=(lo-LON0)*KX;pos[k+1]=h*vx/100;pos[k+2]=-(la-LAT0)*KZ;
+    var t=Math.min(1,h/200);col[k]=0.10+0.30*t;col[k+1]=0.15+0.30*t;col[k+2]=0.20+0.22*t;
+  }
+  for(var j=0;j<ny-1;j++)for(var i=0;i<nx-1;i++){var a0=j*nx+i;idx.push(a0,a0+nx,a0+1,a0+1,a0+nx,a0+nx+1);}
+  var tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(pos,3));tg.setAttribute('color',new THREE.BufferAttribute(col,3));tg.setIndex(idx);tg.computeVertexNormals();
+  terrainMesh=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({vertexColors:true,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false,roughness:1}));
+  world.add(terrainMesh);groundMeshes.push(terrainMesh);
+  var tw=new THREE.Mesh(tg,new THREE.MeshBasicMaterial({color:0x3a4a60,wireframe:true,transparent:true,opacity:.12,depthWrite:false}));
+  world.add(tw);groundMeshes.push(tw);
+  var sh=new THREE.Shape(); SHORE.forEach(function(p,i){var v=P(p[0],p[1],0); if(i===0)sh.moveTo(v.x,-v.z); else sh.lineTo(v.x,-v.z);});
+  var wm=new THREE.Mesh(new THREE.ShapeGeometry(sh),new THREE.MeshBasicMaterial({color:0x123a5e,transparent:true,opacity:.7,side:THREE.DoubleSide,depthWrite:false}));
+  wm.rotation.x=-Math.PI/2; wm.position.y=0.03; world.add(wm); groundMeshes.push(wm);
+  groundMeshes.forEach(function(m){m.visible=groundOn;});
+  // metro
+  var seenLbl={};
+  Object.keys(LINES).forEach(function(k){
+    var L=LINES[k]; var pts=L.st.map(function(s){return P(s[1],s[2],s[3]);});
+    tube(pts,L.color,0.28,{line:k},k);
+    L.st.forEach(function(s){
+      var top=P(s[1],s[2],0),bot=P(s[1],s[2],s[3]);
+      var h=top.y-bot.y; var cyl=new THREE.Mesh(new THREE.CylinderGeometry(0.22*(real?0.14:1),0.22*(real?0.14:1),h,10),new THREE.MeshStandardMaterial({color:0xdddddd,roughness:.6}));
+      cyl.position.set(top.x,(top.y+bot.y)/2,top.z); cyl.userData={line:k,station:s[0],depth:s[3]};
+      groups[k].add(cyl); pickables.push(cyl);
+      var sp=new THREE.Mesh(new THREE.SphereGeometry(0.5*(real?0.14:1),12,12),new THREE.MeshStandardMaterial({color:L.color,emissive:L.color,emissiveIntensity:.5}));
+      sp.position.copy(bot); sp.userData=cyl.userData; groups[k].add(sp); pickables.push(sp);
+      if(MAJOR.indexOf(s[0])>=0 && !seenLbl[s[0]]){seenLbl[s[0]]=1; var lp=top.clone(); lp.y+=1.2; groups[k].add(label(s[0],lp));}
+    });
+  });
+  // other routes (hand-drawn)
+  Object.keys(OTHER).forEach(function(k){
+    var o=OTHER[k]; var pts=o.pts.map(function(p){return P(p[0],p[1],p[2]);});
+    var r=(o.layer==='drainage')?0.55:(o.layer==='rail'?0.3:0.22);
+    tube(pts,o.color,r,{name:o.name,desc:o.desc},o.layer);
+  });
+  applyVis();
+}
+var vis={}; LAYERS.forEach(function(l){vis[l[0]]=true;});
+function applyVis(){Object.keys(groups).forEach(function(k){groups[k].visible=vis[k];});}
+
+// ---------- UI ----------
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+var info=document.getElementById('info'),selected=null; // selected: userData of the picked element, or {surface:h}
+function showInfo(){
+  var T=tr(),d=selected,title,desc;
+  if(!d){title=T.hintT;desc=T.hintD;}
+  else if(d.surface!==undefined){title=T.surfT;desc=T.surfD(d.surface);}
+  else if(d.station){title=T.station+d.station;desc=T.stationDesc(T.layers[d.line],d.depth);}
+  else if(d.line){title=T.layers[d.line];desc=T.lineDesc;}
+  else {title=pick(d.name);desc=pick(d.desc);}
+  info.innerHTML='<b>'+esc(title)+'</b><span>'+esc(desc)+'</span>';
+}
+var chips=document.getElementById('chips'),chipLabels={};
+LAYERS.forEach(function(l){
+  var b=document.createElement('button');b.className='chip';
+  var dot=document.createElement('i');dot.style.background=l[1];var txt=document.createElement('span');
+  b.appendChild(dot);b.appendChild(txt);chipLabels[l[0]]=txt;
+  b.onclick=function(){vis[l[0]]=!vis[l[0]];b.classList.toggle('off',!vis[l[0]]);applyVis();};
+  chips.appendChild(b);
+});
+var vxEl=document.getElementById('vx'),bR=document.getElementById('bReal'),bG=document.getElementById('bGround'),bL=document.getElementById('bLang');
+function updButtons(){var T=tr();
+  bR.textContent=T.real+': '+(real?T.yes11:T.no);
+  bG.textContent=T.ground+': '+(groundOn?T.yes:T.no);
+}
+function applyLang(){
+  var T=tr();
+  document.documentElement.lang=(lang==='pt'?'pt-PT':'en');document.title=T.title;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){el.textContent=T[el.getAttribute('data-i18n')];});
+  LAYERS.forEach(function(l){chipLabels[l[0]].textContent=T.layers[l[0]];});
+  bL.textContent=T.lang;bL.title=T.langTitle;
+  updButtons();showInfo();
+}
+bL.onclick=function(){lang=(lang==='pt'?'en':'pt');try{localStorage.setItem('lang',lang);}catch(e){}applyLang();};
+function setReal(on){real=on;vx=on?1:8;vxEl.value=vx;updButtons();build();}
+vxEl.oninput=function(e){vx=+e.target.value;if(real&&vx!==1){real=false;updButtons();}build();};
+bR.onclick=function(){setReal(!real);if(real)view(20,22,45,0);else view(35,80,125,-2);};
+bG.onclick=function(){groundOn=!groundOn;groundMeshes.forEach(function(m){m.visible=groundOn;});updButtons();};
+function view(px,py,pz,ty){camera.position.set(px,py,pz);controls.target.set(0,ty,0);controls.update();}
+document.getElementById('bReset').onclick=function(){view(35,80,125,-2);};
+document.getElementById('bTop').onclick=function(){view(0.01,150,0.01,0);};
+document.getElementById('bSide').onclick=function(){view(0,4,120,4);};
+
+var ray=new THREE.Raycaster(),ptr=new THREE.Vector2(),down=null;
+canvas.addEventListener('pointerdown',function(e){down=[e.clientX,e.clientY];});
+canvas.addEventListener('pointerup',function(e){
+  if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;
+  ptr.x=(e.clientX/innerWidth)*2-1;ptr.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(ptr,camera);
+  var vp=pickables.filter(function(m){return m.parent&&m.parent.visible;});
+  var h=ray.intersectObjects(vp,false)[0];
+  if(h){selected=h.object.userData;showInfo();}
+  else if(groundOn&&terrainMesh){var th=ray.intersectObject(terrainMesh,false)[0];
+    if(th){var lat=LAT0-th.point.z/KZ,lon=LON0+th.point.x/KX;selected={surface:Math.round(surf(lat,lon))};showInfo();}}
+});
+function resize(){var w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+addEventListener('resize',resize);resize();
+applyLang(); build(); view(35,80,125,-2);
+(function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera);})();
+})();
+</script>
+</body>
+</html>
