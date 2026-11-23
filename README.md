@@ -4,7 +4,9 @@
 
 An interactive 3D view of what lies beneath Lisbon: the metro, the railway and historic galleries, drawn over the city's terrain. Made out of curiosity about urban design, to share with anyone interested in how the city works below street level.
 
-**Open `lisbon-underground-3d.html` in any browser.** It works offline: no server, no install, no account.
+**Try it online: <https://rob-sss.github.io/lisbon-underground-3d/>** ([versão portuguesa](https://rob-sss.github.io/lisbon-underground-3d/?lang=pt))
+
+Or download `lisbon-underground-3d.html` and open it in any browser. It works offline: no server, no install, no account.
 
 The page is available in English and European Portuguese. It follows your browser's language; use the **PT / EN** button (top right) to switch, or add `?lang=en` or `?lang=pt` to the address.
 

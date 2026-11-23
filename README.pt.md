@@ -4,7 +4,9 @@
 
 Uma vista 3D interativa do que existe debaixo de Lisboa: o metro, a ferrovia e galerias históricas, desenhados sobre o relevo da cidade. Feito por curiosidade pelo desenho urbano, para partilhar com quem se interessa por perceber como a cidade funciona abaixo do nível da rua.
 
-**Abra `lisbon-underground-3d.html` em qualquer navegador.** Funciona sem ligação à Internet: sem servidor, sem instalação, sem conta.
+**Experimente online: <https://rob-sss.github.io/lisbon-underground-3d/?lang=pt>** ([English version](https://rob-sss.github.io/lisbon-underground-3d/?lang=en))
+
+Ou descarregue `lisbon-underground-3d.html` e abra-o em qualquer navegador. Funciona sem ligação à Internet: sem servidor, sem instalação, sem conta.
 
 A página está disponível em português europeu e em inglês. Segue o idioma do navegador; use o botão **PT / EN** (canto superior direito) para mudar, ou acrescente `?lang=pt` ou `?lang=en` ao endereço.
 
