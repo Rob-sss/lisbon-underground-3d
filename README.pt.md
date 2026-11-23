@@ -20,7 +20,7 @@ A página está disponível em português europeu e em inglês. Segue o idioma d
 
 Isto é um **esquema didático, não um levantamento topográfico**.
 
-- **Profundidades ilustrativas.** Nenhum dos conjuntos de dados usados contém a profundidade dos túneis. As profundidades abaixo da superfície são valores indicativos (`data/depths.json`).
+- **As profundidades são estimativas, não medições.** Não foi encontrado nenhum conjunto de dados aberto com a profundidade dos túneis do metro, por isso as profundidades das estações em `data/depths.json` são estimativas grosseiras feitas para este esquema, sem base em nenhuma fonte. Servem apenas para dar à vista 3D uma forma plausível. As profundidades das camadas desenhadas à mão também são estimativas.
 - **Relevo aproximado.** A cota é amostrada a cada cerca de 1,4 km, mais a altitude de cada uma das 50 estações, e depois interpolada. Os pormenores pequenos (por exemplo, o vale da Baixa) ficam suavizados. O EU-DEM é um modelo de *superfície*, por isso inclui edifícios e vegetação.
 - **Camadas desenhadas à mão.** A ferrovia, o aqueduto, as Galerias Romanas e os túneis de drenagem (TMSA, TCB) são traçados aproximados, desenhados à mão (`data/hand_drawn_layers.json`).
 
@@ -70,7 +70,7 @@ Os passos 2 (sem Internet) e 3 reproduzem exatamente os ficheiros do repositóri
 | `src/template.html` | Modelo da página: interface (textos em português e inglês), código 3D, marcadores para os dados |
 | `data/raw/estacoes-de-metro.geojson` | Estações oficiais (CC0) |
 | `data/lines.json` | Estações por ordem em cada linha (gerado por `build_data.py`) |
-| `data/depths.json` | Profundidades ilustrativas abaixo da superfície, por estação |
+| `data/depths.json` | Profundidades estimadas (não medidas) abaixo da superfície, por estação |
 | `data/elevation_samples.json` | Amostras de cota usadas para o terreno |
 | `data/terrain.json` | Malha do terreno (gerada por `build_terrain.py`) |
 | `data/hand_drawn_layers.json` | Traçados aproximados: ferrovia, aqueduto, Galerias Romanas, drenagem (nomes e descrições em português e inglês) |
@@ -87,7 +87,7 @@ Os passos 2 (sem Internet) e 3 reproduzem exatamente os ficheiros do repositóri
 
 ## Ideias para melhorar
 
-- Substituir as profundidades ilustrativas por dados reais (perfis longitudinais das linhas do metro)
+- Substituir as profundidades estimadas por dados reais (perfis longitudinais das linhas do metro)
 - Usar um modelo de elevação mais fino
 - Acrescentar a rede ferroviária real (conjunto de dados "Rede Ferroviária" no Lisboa Aberta)
 - Acrescentar a Linha Circular e as estações mais recentes
@@ -96,4 +96,7 @@ As contribuições são bem-vindas, em português ou em inglês. Se alterar algu
 
 ## Licença
 
-Código: MIT (ver `LICENSE`). Os dados continuam sujeitos às licenças das fontes indicadas acima.
+- **Código** (`src/`, `tools/`): MIT, ver `LICENSE`.
+- **Dados criados para este projeto** (`data/depths.json`, `data/hand_drawn_layers.json`, `data/shoreline.json`): [Creative Commons Atribuição 4.0 Internacional (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.pt). Pode reutilizá-los e adaptá-los, também para fins comerciais, desde que indique "Lisbon Underground 3D contributors" e uma ligação para este repositório.
+- **Dados de outras fontes** (`data/raw/`, e `data/lines.json`, `data/elevation_samples.json` e `data/terrain.json`, que derivam deles): continuam a aplicar-se as licenças das fontes indicadas acima, incluindo a atribuição Copernicus.
+- **three.js** (`vendor/`): MIT, ver `vendor/THREE-LICENSE.txt`.

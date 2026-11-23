@@ -6,8 +6,9 @@ Inputs
               dataset "Estações de Metro", resource POITransportes). Official positions.
   --gtfs      Metropolitano de Lisboa GTFS .zip (needs routes, trips and shapes).
               Used only for the ORDER of the stations along each line.
-  --depths    JSON {normalized station name: depth in metres}. Depths are
-              ILLUSTRATIVE (no open dataset with real tunnel depths was found).
+  --depths    JSON {normalized station name: depth in metres}. Depths are rough
+              ESTIMATES, not measurements (no open dataset with real tunnel depths
+              was found).
 
 Output: data/lines.json   (standard library only, Python 3.9+)
 """

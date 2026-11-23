@@ -46,7 +46,7 @@
     <button class="b" id="bSide" data-i18n="side"></button>
     <button class="b" id="bReset" data-i18n="reset"></button>
   </div>
-  <div id="note" data-i18n="note"></div>
+  <div id="note"><span data-i18n="note"></span><br>Contains Copernicus data: EU-DEM v1.1, Copernicus Land Monitoring Service, European Environment Agency / European Commission.<br>Contém dados Copernicus: EU-DEM v1.1, Copernicus Land Monitoring Service, Agência Europeia do Ambiente / Comissão Europeia.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -65,11 +65,11 @@ var I18N = {
     vx: "Vertical exaggeration",
     ground: "Surface", real: "True scale", yes: "on", no: "off", yes11: "on (1:1)",
     top: "Top view", side: "Section", reset: "Reset",
-    note: "At true scale (1:1) heights and tunnel widths are real, but the terrain is barely visible. Metro: 50 stations (Câmara Municipal de Lisboa) and line routes (Metropolitano de Lisboa GTFS). Terrain: interpolated EU-DEM elevations (samples ~1.4 km apart, so approximate). Depths below the surface are illustrative; railway, aqueduct, Roman galleries and drainage tunnels are schematic.",
+    note: "At true scale (1:1) heights and tunnel widths are real, but the terrain is barely visible. Metro: 50 stations (Câmara Municipal de Lisboa) and line routes (Metropolitano de Lisboa GTFS). Terrain: interpolated EU-DEM elevations (samples ~1.4 km apart, so approximate). Depths below the surface are rough estimates, not measurements; railway, aqueduct, Roman galleries and drainage tunnels are schematic.",
     layers: {azul:"Blue Line", amarela:"Yellow Line", verde:"Green Line", vermelha:"Red Line", rail:"Railway", water:"Aqueduct", roman:"Roman galleries", drainage:"Drainage"},
-    lineDesc: "Metropolitano de Lisboa. Route from official data, illustrative depth.",
+    lineDesc: "Metropolitano de Lisboa. Route from official data; depth estimated, not measured.",
     station: "Station ",
-    stationDesc: function(line, d){ return line + " · official position · illustrative depth ~" + d + " m"; },
+    stationDesc: function(line, d){ return line + " · official position · estimated depth ~" + d + " m (not measured)"; },
     surfT: "Surface",
     surfD: function(h){ return "Elevation ~" + h + " m above sea level (interpolated terrain, indicative)"; }
   },
@@ -83,11 +83,11 @@ var I18N = {
     vx: "Exagero vertical",
     ground: "Superfície", real: "Escala real", yes: "sim", no: "não", yes11: "sim (1:1)",
     top: "Vista de cima", side: "Corte", reset: "Repor",
-    note: "Em escala real (1:1), as alturas e a largura dos túneis são reais, mas o relevo quase não se vê. Metro: 50 estações (Câmara Municipal de Lisboa) e traçado das linhas (GTFS do Metropolitano de Lisboa). Relevo: cotas EU-DEM interpoladas (amostras a cerca de 1,4 km, por isso aproximado). Profundidades abaixo da superfície ilustrativas; ferrovia, aqueduto, galerias romanas e túneis de drenagem esquemáticos.",
+    note: "Em escala real (1:1), as alturas e a largura dos túneis são reais, mas o relevo quase não se vê. Metro: 50 estações (Câmara Municipal de Lisboa) e traçado das linhas (GTFS do Metropolitano de Lisboa). Relevo: cotas EU-DEM interpoladas (amostras a cerca de 1,4 km, por isso aproximado). As profundidades abaixo da superfície são estimativas, não medições; ferrovia, aqueduto, galerias romanas e túneis de drenagem esquemáticos.",
     layers: {azul:"Linha Azul", amarela:"Linha Amarela", verde:"Linha Verde", vermelha:"Linha Vermelha", rail:"Ferrovia", water:"Aqueduto", roman:"Galerias romanas", drainage:"Drenagem"},
-    lineDesc: "Metropolitano de Lisboa. Traçado a partir de dados oficiais, profundidade ilustrativa.",
+    lineDesc: "Metropolitano de Lisboa. Traçado a partir de dados oficiais; profundidade estimada, não medida.",
     station: "Estação ",
-    stationDesc: function(line, d){ return line + " · posição oficial · profundidade ilustrativa ~" + d + " m"; },
+    stationDesc: function(line, d){ return line + " · posição oficial · profundidade estimada ~" + d + " m (não medida)"; },
     surfT: "Superfície",
     surfD: function(h){ return "Cota ~" + h + " m acima do nível do mar (relevo interpolado, indicativo)"; }
   }
@@ -103,7 +103,7 @@ function tr(){ return I18N[lang]; }
 function pick(v){ return (v && typeof v === "object") ? (v[lang] || v.en) : v; }
 
 // ---------- DATA (approximate) ----------
-// station: [name, lat, lon, illustrative depth in metres]
+// station: [name, lat, lon, estimated depth in metres (not measured, see README)]
 var LINES = {
   azul:{name:"Linha Azul",color:0x2f8cff,st:[["Reboleira", 38.75227, -9.22388, 10],["Amadora Este", 38.75872, -9.2179, 10],["Alfornelos", 38.76051, -9.20448, 12],["Pontinha", 38.76225, -9.19686, 12],["Carnide", 38.75917, -9.19263, 14],["Colégio Militar", 38.75344, -9.1893, 16],["Alto dos Moinhos", 38.74994, -9.18007, 18],["Laranjeiras", 38.74875, -9.17258, 18],["Jardim Zoológico", 38.74164, -9.16867, 20],["Praça de Espanha", 38.73775, -9.15925, 22],["São Sebastião", 38.7344, -9.15392, 24],["Parque", 38.72895, -9.15014, 26],["Marquês de Pombal", 38.72464, -9.14975, 26],["Avenida", 38.7194, -9.14515, 24],["Restauradores", 38.71592, -9.14212, 22],["Baixa Chiado", 38.71057, -9.14015, 26],["Terreiro do Paço", 38.70713, -9.1342, 18],["Santa Apolónia", 38.71392, -9.12233, 16]]},
   amarela:{name:"Linha Amarela",color:0xf5c400,st:[["Rato", 38.72016, -9.15469, 30],["Marquês de Pombal", 38.72464, -9.14975, 26],["Picoas", 38.73041, -9.14688, 24],["Saldanha", 38.73517, -9.14529, 24],["Campo Pequeno", 38.74093, -9.14668, 22],["Entre Campos", 38.74713, -9.14821, 22],["Cidade Universitária", 38.7516, -9.15912, 20],["Campo Grande", 38.76022, -9.15789, 20],["Quinta das Conchas", 38.76749, -9.15555, 16],["Lumiar", 38.77328, -9.15929, 16],["Ameixoeira", 38.77954, -9.15952, 14],["Senhor Roubado", 38.78578, -9.1719, 12],["Odivelas", 38.79351, -9.1732, 10]]},
